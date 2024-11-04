@@ -43,10 +43,12 @@ public static class OperaToGraphMapper
                 //orderDates.Add(salesOrder.OrderDate);
                 //orderDueDates.Add(salesOrder.DueDate);
                 //orderTotals.Add(salesOrder.ExcludingVat + salesOrder.Vat);
-                Debug.WriteLine(salesOrder.OrderDate);
+                //Debug.WriteLine(salesOrder.OrderDate);
                 orderDates.Add(salesOrder.OrderDate.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture));
                 orderDueDates.Add(salesOrder.DueDate.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture));
-                orderTotals.Add(Math.Round(salesOrder.ExcludingVat + salesOrder.Vat, 2).ToString("F2"));
+                //orderDates.Add(salesOrder.OrderDate);
+                //orderDueDates.Add(salesOrder.DueDate);
+                orderTotals.Add(Math.Round(salesOrder.ExcludingVat + salesOrder.Vat, 2).ToString("F"));
             }
 
             var item = new ExternalItem
@@ -56,7 +58,7 @@ public static class OperaToGraphMapper
                 Content = new ExternalItemContent
                 {
                     Type = ExternalItemContentType.Text,
-                    Value = $"{customerWithOrders.Name}-{customerWithOrders.SalesAccountCode}",
+                    Value = $"{customerWithOrders.Name}",
                 },
                 Properties = new Properties
                 {
@@ -74,18 +76,15 @@ public static class OperaToGraphMapper
                         { "SalesOrderEmail", customerWithOrders.SalesOrderEmail ?? string.Empty },
                         { "TelephoneNumber", customerWithOrders.TelephoneNumber ?? string.Empty },
                         { "OrdrContact", customerWithOrders.OrdrContact ?? string.Empty },
-                        { "OrderBalance", customerWithOrders.OrderBalance.ToString("F2") },
+                        { "OrderBalance", customerWithOrders.OrderBalance },
                         { "OrderNumbers@odata.type", "Collection(String)" },
                         { "OrderNumbers", orderNumbers.ToArray() },
                         { "OrderCustrefs@odata.type", "Collection(String)" },
                         { "OrderCustrefs", orderCustrefs.ToArray() },
-                        //{ "OrderTotals@odata.type", "Collection(Double)" },
                         { "OrderTotals@odata.type", "Collection(String)" },
                         { "OrderTotals", orderTotals.ToArray() },
-                        //{ "OrderDates@odata.type", "Collection(DateTimeOffset)" },
                         { "OrderDates@odata.type", "Collection(String)" },
                         { "OrderDates", orderDates.ToArray() },
-                        //{ "OrderDueDates@odata.type", "Collection(DateTimeOffset)" },
                         { "OrderDueDates@odata.type", "Collection(String)" },
                         { "OrderDueDates", orderDueDates.ToArray() },
 

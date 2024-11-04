@@ -62,7 +62,7 @@ public static class GraphHelper
         _ = graphClient ?? throw new MemberAccessException("graphClient is null");
         _ = connectionId ?? throw new ArgumentException("connectionId is required");
 
-        Console.WriteLine("CAN TAKE UP TO 15 MINUTES !");
+        Console.WriteLine("CAN TAKE UP TO 30 MINUTES !");
         await graphClient.External.Connections[connectionId].DeleteAsync();
 
     }
@@ -122,7 +122,9 @@ public static class GraphHelper
         _ = connectionId ?? throw new ArgumentException("connectionId is null");
 
         var itemJson = JsonConvert.SerializeObject(item);
-        File.WriteAllText(Path.Combine(@"c:\temp\", $"{item.Id}_item.json"), itemJson);
+        File.WriteAllText(Path.Combine(@"c:\temp\", $"{item.Id}_item_newtonsoft.json"), itemJson);
+        itemJson = System.Text.Json.JsonSerializer.Serialize(item);
+        File.WriteAllText(Path.Combine(@"c:\temp\", $"{item.Id}_item_microsoft.json"), itemJson);
 
         try
         {
@@ -243,8 +245,7 @@ public static class GraphHelper
                 },
 
                 new() {
-                    //Name = "OrderBalance", Type = PropertyType.Double, IsQueryable = false, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
-                    Name = "OrderBalance", Type = PropertyType.String, IsQueryable = false, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
+                    Name = "OrderBalance", Type = PropertyType.Double, IsQueryable = false, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
                 },
 
                 new() {
@@ -256,17 +257,14 @@ public static class GraphHelper
                 },
 
                 new() {
-                    //Name = "OrderDates", Type = PropertyType.DateTimeCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
                     Name = "OrderDates", Type = PropertyType.StringCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
                 },
 
                 new() {
-                    //Name = "OrderDueDates", Type = PropertyType.DateTimeCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
                     Name = "OrderDueDates", Type = PropertyType.StringCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
                 },
 
                 new() {
-                    //Name = "OrderTotals", Type = PropertyType.DoubleCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
                     Name = "OrderTotals", Type = PropertyType.StringCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
                 },
 
