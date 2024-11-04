@@ -3,8 +3,10 @@ using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Graph.Models.ExternalConnectors;
 using Microsoft.Graph.Models.ODataErrors;
+using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Authentication.Azure;
 using Microsoft.Kiota.Serialization;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace DataConnectorCopilot;
@@ -60,7 +62,7 @@ public static class GraphHelper
         _ = graphClient ?? throw new MemberAccessException("graphClient is null");
         _ = connectionId ?? throw new ArgumentException("connectionId is required");
 
-        Console.WriteLine("Doesn't work - do it via admin portal");
+        Console.WriteLine("CAN TAKE UP TO 15 MINUTES !");
         await graphClient.External.Connections[connectionId].DeleteAsync();
 
     }
@@ -119,6 +121,9 @@ public static class GraphHelper
         _ = graphClient ?? throw new MemberAccessException("graphClient is null");
         _ = connectionId ?? throw new ArgumentException("connectionId is null");
 
+        var itemJson = JsonConvert.SerializeObject(item);
+        File.WriteAllText(Path.Combine(@"c:\temp\", $"{item.Id}_item.json"), itemJson);
+
         try
         {
             await graphClient.External
@@ -128,7 +133,11 @@ public static class GraphHelper
         }
         catch (ODataError ex)
         {
-            Console.WriteLine($"{ex.Message} {ex.Error} {ex.InnerException}");
+            Console.WriteLine($"{ex.Message} {ex.Error.InnerError.AdditionalData["code"]} {ex.Error.InnerError.AdditionalData["message"]} ");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"{ex.Message} {ex.InnerException}");
         }
     }
 
@@ -234,7 +243,8 @@ public static class GraphHelper
                 },
 
                 new() {
-                    Name = "OrderBalance", Type = PropertyType.Double, IsQueryable = false, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
+                    //Name = "OrderBalance", Type = PropertyType.Double, IsQueryable = false, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
+                    Name = "OrderBalance", Type = PropertyType.String, IsQueryable = false, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
                 },
 
                 new() {
@@ -246,15 +256,18 @@ public static class GraphHelper
                 },
 
                 new() {
-                    Name = "OrderDates", Type = PropertyType.DateTimeCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
+                    //Name = "OrderDates", Type = PropertyType.DateTimeCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
+                    Name = "OrderDates", Type = PropertyType.StringCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
                 },
 
                 new() {
-                    Name = "OrderDueDates", Type = PropertyType.DateTimeCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
+                    //Name = "OrderDueDates", Type = PropertyType.DateTimeCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
+                    Name = "OrderDueDates", Type = PropertyType.StringCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
                 },
 
                 new() {
-                    Name = "OrderTotals", Type = PropertyType.DoubleCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
+                    //Name = "OrderTotals", Type = PropertyType.DoubleCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
+                    Name = "OrderTotals", Type = PropertyType.StringCollection, IsQueryable = true, IsSearchable = false, IsRetrievable = true, IsRefinable = false,
                 },
 
 /*

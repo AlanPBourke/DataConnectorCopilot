@@ -1,6 +1,8 @@
 ﻿using DataConnectorCopilot.Models;
 using Microsoft.Graph.Models.ExternalConnectors;
 using Newtonsoft.Json;
+using System.Diagnostics;
+using System.Globalization;
 
 namespace DataConnectorCopilot;
 
@@ -8,6 +10,7 @@ public static class OperaToGraphMapper
 {
     public static async Task<List<ExternalItem>> GetExternalItems()
     {
+
         var items = new List<ExternalItem>();
 
         Console.WriteLine("Getting Sales Order data ...");
@@ -26,17 +29,24 @@ public static class OperaToGraphMapper
         {
             var orderNumbers = new List<string>();
             var orderCustrefs = new List<string>();
-            var orderDates = new List<DateTime>();
-            var orderDueDates = new List<DateTime>();
-            var orderTotals = new List<double>();
+            //var orderDates = new List<DateTime>();
+            //var orderDueDates = new List<DateTime>();
+            //var orderTotals = new List<double>();
+            var orderDates = new List<string>();
+            var orderDueDates = new List<string>();
+            var orderTotals = new List<string>();
 
             foreach (var salesOrder in customerWithOrders.SOPHeaders!)
             {
                 orderNumbers.Add(salesOrder.SalesOrder);
                 orderCustrefs.Add(salesOrder.CustomerReference);
-                orderDates.Add(salesOrder.OrderDate);
-                orderDueDates.Add(salesOrder.DueDate);
-                orderTotals.Add(salesOrder.ExcludingVat + salesOrder.Vat);
+                //orderDates.Add(salesOrder.OrderDate);
+                //orderDueDates.Add(salesOrder.DueDate);
+                //orderTotals.Add(salesOrder.ExcludingVat + salesOrder.Vat);
+                Debug.WriteLine(salesOrder.OrderDate);
+                orderDates.Add(salesOrder.OrderDate.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture));
+                orderDueDates.Add(salesOrder.DueDate.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture));
+                orderTotals.Add(Math.Round(salesOrder.ExcludingVat + salesOrder.Vat, 2).ToString("F2"));
             }
 
             var item = new ExternalItem
@@ -46,7 +56,7 @@ public static class OperaToGraphMapper
                 Content = new ExternalItemContent
                 {
                     Type = ExternalItemContentType.Text,
-                    Value = $"{customerWithOrders.Name} {customerWithOrders.SalesAccountCode}",
+                    Value = $"{customerWithOrders.Name}-{customerWithOrders.SalesAccountCode}",
                 },
                 Properties = new Properties
                 {
@@ -55,27 +65,29 @@ public static class OperaToGraphMapper
                     {
                         { "Name", customerWithOrders.Name },
                         { "SalesAccountCode", customerWithOrders.SalesAccountCode },
-                        { "Memo@odata.type", "Collection(String)" },
-                        { "Memo", customerWithOrders.Memo },
-                        { "AddressLine1", customerWithOrders.AddressLine1 },
-                        { "AddressLine2", customerWithOrders.AddressLine2 },
-                        { "AddressLine3", customerWithOrders.AddressLine3 },
-                        { "AddressLine4", customerWithOrders.AddressLine4 },
-                        { "PostCode", customerWithOrders.PostCode },
-                        { "SalesOrderEmail", customerWithOrders.SalesOrderEmail },
-                        { "TelephoneNumber", customerWithOrders.TelephoneNumber },
-                        { "OrdrContact", customerWithOrders.OrdrContact },
-                        { "OrdrBalance", Convert.ToDouble(customerWithOrders.OrderBalance) },
+                        { "Memo", customerWithOrders.Memo ?? string.Empty },
+                        { "AddressLine1", customerWithOrders.AddressLine1 ?? string.Empty },
+                        { "AddressLine2", customerWithOrders.AddressLine2 ?? string.Empty },
+                        { "AddressLine3", customerWithOrders.AddressLine3 ?? string.Empty },
+                        { "AddressLine4", customerWithOrders.AddressLine4 ?? string.Empty },
+                        { "PostCode", customerWithOrders.PostCode ?? string.Empty },
+                        { "SalesOrderEmail", customerWithOrders.SalesOrderEmail ?? string.Empty },
+                        { "TelephoneNumber", customerWithOrders.TelephoneNumber ?? string.Empty },
+                        { "OrdrContact", customerWithOrders.OrdrContact ?? string.Empty },
+                        { "OrderBalance", customerWithOrders.OrderBalance.ToString("F2") },
                         { "OrderNumbers@odata.type", "Collection(String)" },
-                        { "OrderNumbers", orderNumbers },
+                        { "OrderNumbers", orderNumbers.ToArray() },
                         { "OrderCustrefs@odata.type", "Collection(String)" },
-                        { "OrderCustrefs", orderCustrefs },
-                        { "OrderDates@odata.type", "Collection(DateTimeOffset)" },
-                        { "OrderDates", orderDates },
-                        { "OrderDueDates@odata.type", "Collection(DateTimeOffset)" },
-                        { "OrderDueDates", orderDueDates },
-                        { "OrderTotals@odata.type", "Collection(Double)" },
-                        { "OrderTotals", orderTotals },
+                        { "OrderCustrefs", orderCustrefs.ToArray() },
+                        //{ "OrderTotals@odata.type", "Collection(Double)" },
+                        { "OrderTotals@odata.type", "Collection(String)" },
+                        { "OrderTotals", orderTotals.ToArray() },
+                        //{ "OrderDates@odata.type", "Collection(DateTimeOffset)" },
+                        { "OrderDates@odata.type", "Collection(String)" },
+                        { "OrderDates", orderDates.ToArray() },
+                        //{ "OrderDueDates@odata.type", "Collection(DateTimeOffset)" },
+                        { "OrderDueDates@odata.type", "Collection(String)" },
+                        { "OrderDueDates", orderDueDates.ToArray() },
 
                     }
                 }
